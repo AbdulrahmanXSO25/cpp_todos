@@ -38,6 +38,7 @@ void Shell::run() {
         int choice;
         std::cin >> choice;
 
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         if (choice > 0 && choice <= static_cast<int>(MENU_OPTION_COUNT)) {
             if (choice - 1 == EXIT) {

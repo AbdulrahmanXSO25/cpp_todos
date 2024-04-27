@@ -1,6 +1,16 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <thread>
 #include "Database.h"
 #include "Shell.h"
+#include "API.h"
+
+void runAPI(API& api) {
+    api.listenAndServe();
+}
+
+void runShell(Shell& shell) {
+    shell.run();
+}
 
 int main() {
     try {
@@ -9,8 +19,15 @@ int main() {
 
         Command cmd(db);
 
+        API api(cmd, 5000);
         Shell shell(cmd);
-        shell.run();
+
+        std::thread apiThread(runAPI, std::ref(api));
+        std::thread shellThread(runShell, std::ref(shell));
+
+        apiThread.join();
+        shellThread.join();
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
