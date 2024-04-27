@@ -35,8 +35,8 @@ void Shell::run() {
         }
         std::cout << "Enter choice: ";
 
-        int choice ;
-        std::cin>>choice;
+        int choice;
+        std::cin >> choice;
 
 
         if (choice > 0 && choice <= static_cast<int>(MENU_OPTION_COUNT)) {
