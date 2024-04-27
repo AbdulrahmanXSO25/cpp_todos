@@ -1,0 +1,8 @@
+# Visual Studio Code specific files
+.idea/
+.vscode/
+*.code-workspace
+
+# CMake build artifacts
+build/
+cmake-build-debug/
