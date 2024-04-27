@@ -34,9 +34,10 @@ void Shell::run() {
             std::cout << i + 1 << ". " << menuOptionsNames[i].second << "\n";
         }
         std::cout << "Enter choice: ";
-        std::getline(std::cin, input);
 
-        int choice = std::stoi(input);
+        int choice ;
+        std::cin>>choice;
+
 
         if (choice > 0 && choice <= static_cast<int>(MENU_OPTION_COUNT)) {
             if (choice - 1 == EXIT) {
