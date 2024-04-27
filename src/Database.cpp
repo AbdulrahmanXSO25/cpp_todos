@@ -11,12 +11,15 @@ Database::~Database() {
     sqlite3_close(db);
 }
 
-void Database::execute(const std::string& sql) {
+bool Database::execute(const std::string& sql) {
     char* errMsg = nullptr;
     if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
         std::string error = "SQL error: " + std::string(errMsg);
         sqlite3_free(errMsg);
         throw std::runtime_error(error);
+    }
+    else {
+        return true;
     }
 }
 
@@ -36,6 +39,7 @@ void Database::execute(const std::string& sql, std::function<void(int, char**, c
 }
 
 void Database::createTable() {
-    execute("CREATE TABLE IF NOT EXISTS TASKS(ID INTEGER PRIMARY KEY AUTOINCREMENT, TITLE TEXT NOT NULL, DESCRIPTION TEXT NOT NULL);", 
-            [](int argc, char** argv, char** azColName) {});
+    std::ostringstream sql;
+    sql << "CREATE TABLE IF NOT EXISTS TASKS(ID INTEGER PRIMARY KEY AUTOINCREMENT, TITLE NVARCHAR(" << TITLE_MAX << ") NOT NULL, DESCRIPTION TEXT NOT NULL);";
+    execute(sql.str());
 }

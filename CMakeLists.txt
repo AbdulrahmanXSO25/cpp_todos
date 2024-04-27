@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add the executable
 # Note that we are now including the source files from the src/ directory
-add_executable(todos src/main.cpp src/Database.cpp src/Shell.cpp)
+add_executable(todos src/main.cpp src/Database.cpp src/Command.cpp src/Shell.cpp)
 
 # Include directories for header files
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)

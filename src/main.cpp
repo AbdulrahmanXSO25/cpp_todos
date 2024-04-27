@@ -7,7 +7,9 @@ int main() {
         Database db("todos.db");
         db.createTable();
 
-        Shell shell(db);
+        Command cmd(db);
+
+        Shell shell(cmd);
         shell.run();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

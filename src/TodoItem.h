@@ -3,6 +3,8 @@
 
 #include <string>
 
+const int TITLE_MAX = 50;
+
 class TodoItem {
 public:
     int id;

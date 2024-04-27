@@ -2,12 +2,13 @@
 #define SHELL_H
 
 #include "Database.h"
+#include "Command.h"
 #include "TodoItem.h"
 #include <vector>
 
 class Shell {
 public:
-    explicit Shell(Database& db);
+    explicit Shell(Command& cmd);
     void run();
 
 private:
@@ -20,20 +21,17 @@ private:
         MENU_OPTION_COUNT
     };
 
-    Database& db;
-    std::vector<TodoItem> tasks;
+    Command& command;
     std::vector<std::pair<MenuOption, std::string>> menuOptionsNames;
     std::vector<std::pair<MenuOption, std::function<void()>>> menuOptionsMethods;
 
     void initializeMenu();
     void initializeMenuOptionsNames();
     void initializeMenuOptionsMethods();
-    void addTask();
     void viewTasks() const;
+    void addTask();
     void updateTask();
     void deleteTask();
-    void loadTasks();
-    void saveTask(const TodoItem& item);
     TodoItem promptForTaskDetails();
 };
 

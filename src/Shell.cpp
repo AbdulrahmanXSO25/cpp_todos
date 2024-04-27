@@ -1,7 +1,7 @@
 #include "Shell.h"
 #include <bits/stdc++.h>
 
-Shell::Shell(Database& db) : db(db) {
+Shell::Shell(Command &cmd) : command(cmd) {
     initializeMenu();
 }
 
@@ -40,9 +40,10 @@ void Shell::run() {
 
         if (choice > 0 && choice <= static_cast<int>(MENU_OPTION_COUNT)) {
             if (choice - 1 == EXIT) {
-                break;  // Exit the loop
+                std::cout << "You are welcome!\n";
+                break;
             } else {
-                menuOptionsMethods[choice - 1].second();  // Execute the selected option's action
+                menuOptionsMethods[choice - 1].second();
             }
         } else {
             std::cout << "Invalid choice. Please enter a number from 1 to " << MENU_OPTION_COUNT << ".\n";
@@ -50,32 +51,28 @@ void Shell::run() {
     }
 }
 
-void Shell::addTask() {
-    TodoItem item = promptForTaskDetails();
-    std::string sql = "INSERT INTO tasks (title, description) VALUES ('" + item.title + "', '" + item.description + "');";
-    db.execute(sql);
-    std::cout << "Task added.\n";
+void Shell::viewTasks() const {
+    std::vector<TodoItem> tasks = command.getTasks();
+    
+
+    const int maxIntWidth = std::log10(std::numeric_limits<int>::max()) + 1;
+
+    std::cout << std::left
+            << std::setw(maxIntWidth) << "ID"
+            << std::setw(TITLE_MAX) << "Title"
+            << "Description" << std::endl;
+
+    for (const auto& task : tasks) {
+        std::cout << std::left
+            << std::setw(maxIntWidth) << task.id
+            << std::setw(TITLE_MAX) << task.title
+            << task.description << std::endl;
+    }
 }
 
-void Shell::viewTasks() const {
-    std::string sql = "SELECT * FROM tasks;";
-    std::vector<std::vector<std::string>> table;
-
-    db.execute(sql, [&table](int argc, char** argv, char** azColName) {
-        std::vector<std::string> row;
-        for (int i = 0; i < argc; i++) {
-            std::string value = argv[i] ? argv[i] : "NULL";
-            row.push_back(value);
-        }
-        table.push_back(row);
-    });
-
-    for (const auto& row : table) {
-        for (const auto& cell : row) {
-            std::cout << std::setw(12) << std::left << cell << "| ";
-        }
-        std::cout << std::endl;
-    }
+void Shell::addTask() {
+    TodoItem item = promptForTaskDetails();
+    command.addTask(item) ? std::cout << "Task added.\n" : std::cout << "Problem Adding.\n";
 }
 
 void Shell::updateTask() {
@@ -85,9 +82,9 @@ void Shell::updateTask() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     TodoItem item = promptForTaskDetails();
-    std::string sql = "UPDATE tasks SET title = '" + item.title + "', description = '" + item.description + "' WHERE id = " + std::to_string(id) + ";";
-    db.execute(sql);
-    std::cout << "Task updated.\n";
+    item.id = id;
+
+    command.updateTask(item) ? std::cout << "Task " << item.id << " updated.\n" : std::cout << "Problem Adding.\n";
 }
 
 void Shell::deleteTask() {
@@ -95,23 +92,8 @@ void Shell::deleteTask() {
     std::cout << "Enter task ID to delete: ";
     std::cin >> id;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-    std::string sql = "DELETE FROM tasks WHERE id = " + std::to_string(id) + ";";
-    db.execute(sql);
-    std::cout << "Task deleted.\n";
-}
-
-void Shell::loadTasks() {
-    std::string sql = "SELECT * FROM tasks;";
-    db.execute(sql, [this](int argc, char** argv, char** azColName) {
-        // Assuming that the callback gives us a row at a time with id, title, and description in that order.
-        if (argc == 3) {
-            int id = std::stoi(argv[0]);
-            std::string title = argv[1] ? argv[1] : "";
-            std::string description = argv[2] ? argv[2] : "";
-            tasks.emplace_back(id, title, description);
-        }
-    });
+    
+    command.deleteTask(id) ? std::cout << "Task " << id << " deleted.\n" : std::cout << "Problem deleting.\n";
 }
 
 TodoItem Shell::promptForTaskDetails() {
@@ -120,12 +102,5 @@ TodoItem Shell::promptForTaskDetails() {
     std::getline(std::cin, title);
     std::cout << "Enter task description: ";
     std::getline(std::cin, description);
-    // ID will be set by the database upon insertion, so we use a placeholder value here.
     return {0, title, description};
-}
-
-void Shell::saveTask(const TodoItem& item) {
-    std::string sql = "INSERT INTO tasks (title, description) VALUES ('" + item.title + "', '" + item.description + "');";
-    db.execute(sql);
-    std::cout << "Task saved.\n";
 }
